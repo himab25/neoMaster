@@ -4,41 +4,18 @@
   <artifactId>neoMaster</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <repositories>
-
         <repository>
-            <id>mvnrepo</id>
-            <name>mvnrepo</name>
-            <url>http://mvnrepository.com</url>
-        </repository>
-
-         <repository>
             <id>centralmvn</id>
             <name>centralmvn</name>
-            <url>http://central.maven.org</url>
+            <url>http://central.maven.org/maven2</url>
         </repository>
         <repository>
             <id>mvnrepo2</id>
             <name>mvnrepo2</name>
-            <url>http://repo1.maven.org</url>
+            <url>http://repo1.maven.org/maven2</url>
         </repository>
-        <repository>
-            <id>oss-sonatype-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
-            <id>codehaus-snaphosts</id>
-            <name>Codehaus Snapshots</name>
-            <url>http://snapshots.repository.codehaus.org/</url>
-        </repository>
-        <repository>
-            <id>codehaus-releases</id>
-            <name>CodeHaus Releases</name>
-            <url>http://repository.codehaus.org/</url>
-        </repository>
-
    </repositories>
-  
-  
+    
   <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
