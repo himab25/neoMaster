@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -53,6 +54,7 @@ public class NEODataObjectsManager {
 
     String nextDateUrl = null;
     String defaultErrorMsg = "Date Format Exception - Expected format (yyyy-mm-dd) - The Feed date limit is only 7 Days";
+    private static final Logger LOGGER = Logger.getLogger(NEODataObjectsManager.class.getName());
 
     /**
      * Retrieve the total count of NEO objects.
@@ -72,7 +74,7 @@ public class NEODataObjectsManager {
                 }
             }
         } catch (final Exception e) {
-            System.out.println(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
         return 0l;
     }
@@ -106,7 +108,7 @@ public class NEODataObjectsManager {
             final String response = getResponseString(url);
             return processClosestNEOObjectsData(response);
         } catch (final MalformedURLException e) {
-            System.out.println(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
         return null;
     }
@@ -125,7 +127,7 @@ public class NEODataObjectsManager {
             final String response = getResponseString(url);
             return processClosestNEOObjectsData(response);
         } catch (final MalformedURLException e) {
-            System.out.println(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
         return null;
     }
@@ -152,7 +154,7 @@ public class NEODataObjectsManager {
                 }
             }
         } catch (final Exception e) {
-            System.out.println(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
         return null;
     }
@@ -271,7 +273,7 @@ public class NEODataObjectsManager {
                 }
             }
         } catch (final MalformedURLException e) {
-            System.out.println(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
         return "Cannot find largest NEO Object";
     }
@@ -292,7 +294,7 @@ public class NEODataObjectsManager {
                 }
             }
         } catch (final Exception e) {
-            System.out.println(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
         return null;
     }
@@ -348,7 +350,7 @@ public class NEODataObjectsManager {
             }
             in.close();
         } catch (final Exception e) {
-            System.out.println(e.getMessage());
+            LOGGER.severe(e.getMessage());
         } finally {
             if (connection != null)
                 connection.disconnect();

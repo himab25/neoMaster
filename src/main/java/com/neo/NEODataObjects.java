@@ -3,6 +3,8 @@
  */
 package com.neo;
 
+import java.util.logging.Logger;
+
 import com.neo.manager.NEODataObjectsManager;
 
 /**
@@ -13,6 +15,7 @@ import com.neo.manager.NEODataObjectsManager;
  * @author dev
  */
 public class NEODataObjects {
+    private static final Logger LOGGER = Logger.getLogger(NEODataObjects.class.getName());
 
     /**
      * @param args
@@ -21,19 +24,19 @@ public class NEODataObjects {
 
         final NEODataObjectsManager manager = new NEODataObjectsManager();
         final Long count = manager.getTotalNEOObjectsCount();
-        System.out.println("Total number of NEO objects :" + count);
+        LOGGER.info("Total number of NEO objects :" + count);
 
         if (count != 0) {
             // Get closest NEO object data
             final String closestNEOData = manager.getClosestNeoObject();
-            System.out.println("Closest NEO object data :" + closestNEOData);
+            LOGGER.info("Closest NEO object data :" + closestNEOData);
 
             // Get largest NEO Object data
             final String largestNEOData = manager.getLargestNEOObject(args);
-            System.out.println("Largest NEO object data :" + largestNEOData);
+            LOGGER.info("Largest NEO object data :" + largestNEOData);
 
         } else {
-            System.out.println("NEO WS is unavailable.");
+            LOGGER.info("NEO WS is unavailable.");
         }
 
     }
