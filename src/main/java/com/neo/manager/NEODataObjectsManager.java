@@ -7,6 +7,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -40,7 +43,7 @@ public class NEODataObjectsManager {
     private static final String DETAIL_PARAM = "detailed=true";
     private static final String APIKEY_PARAM = "&api_key=B30cILrIL32Px5Thm38q3JXxecfQBXmkBq1F7NU4";
 
-    String nextDateUrl = null;
+    String nextDateUrl = "https://api.nasa.gov/neo/rest/v1/feed?start_date=2019-02-10&end_date=2019-02-10&detailed=true&api_key=DEMO_KEY";
     String defaultErrorMsg = "Date Format Exception - Expected format (yyyy-mm-dd) - The Feed date limit is only 7 Days";
     private static final Logger LOGGER = Logger.getLogger(NEODataObjectsManager.class.getName());
 
@@ -80,15 +83,52 @@ public class NEODataObjectsManager {
      * @return
      * @throws IOException
      */
-    public String getClosestNeoObject() {
-        // First look for the NEO objects feed for today,if not found then check for the next day and once found loop through them to find the
-        // NEO with smallest "minimum_orbit_intersection" in AU.
-        DataNEOObjectsTO to = retrieveNeoObjectsForToday();
-        while (null == to) {
-            to = retrieveNeoObjectsForNextDate();
+    public String getClosestNeoObject(final String[] args) {
+
+        String startDate = null;
+        String endDate = null;
+        DataNEOObjectsTO to = null;
+        try {
+            // If the user has input the date range from command line,we use them.
+            // Please note the date range limit is 7 days and format is yyyy-MM-dd.
+            // If only one date is input,we take it as start date and leave endDate as empty
+            if (args.length > 0) {
+                startDate = args[0];
+                if (args.length > 1) {
+                    endDate = args[1];
+                } else {
+                    endDate = startDate;
+                }
+            }
+            if (null != startDate) {
+                to = retrieveNeoObjectsForInputDate(startDate, endDate);
+            } else {
+                to = retrieveNeoObjectsForToday();
+            }
+            // First look for the NEO objects feed for today,if not found then check for the next day and once found loop through them to find
+            // the NEO with smallest "minimum_orbit_intersection" in AU.
+            while (null == to) {
+                to = retrieveNeoObjectsForNextDate();
+            }
+        } catch (final MalformedURLException e) {
+            LOGGER.severe(e.getMessage());
         }
         // Return the details of the closest NEO object as a string.
         return to.toString();
+    }
+
+    /**
+     * @param startDate
+     * @param endDate
+     * @return
+     * @throws MalformedURLException
+     */
+    public DataNEOObjectsTO retrieveNeoObjectsForInputDate(final String startDate, final String endDate) throws MalformedURLException {
+        // Browse the NEO objects feed for the selected date range to determine the largest one
+        final String queryParams = "start_date=" + startDate + "&end_date=" + endDate + "&" + DETAIL_PARAM + APIKEY_PARAM;
+        final URL url = new URL("https://api.nasa.gov/neo/rest/v1/feed?" + queryParams);
+        final String response = getResponseString(url);
+        return processClosestNEOObjectsData(response);
     }
 
     /**
@@ -117,9 +157,11 @@ public class NEODataObjectsManager {
      */
     public DataNEOObjectsTO retrieveNeoObjectsForNextDate() {
         try {
-            final URL url = new URL(nextDateUrl);
-            final String response = getResponseString(url);
-            return processClosestNEOObjectsData(response);
+            if (null != nextDateUrl) {
+                final URL url = new URL(nextDateUrl);
+                final String response = getResponseString(url);
+                return processClosestNEOObjectsData(response);
+            }
         } catch (final MalformedURLException e) {
             LOGGER.severe(e.getMessage());
         }
@@ -284,5 +326,11 @@ public class NEODataObjectsManager {
                 connection.disconnect();
         }
         return contents.toString();
+    }
+
+    public String getFormattedDate(final Date date) {
+        final String strDateFormat = "yyyy-MM-dd";
+        final DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
+        return dateFormat.format(date);
     }
 }

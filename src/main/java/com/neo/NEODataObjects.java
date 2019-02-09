@@ -28,7 +28,7 @@ public class NEODataObjects {
 
         if (!count.equalsIgnoreCase("0")) {
             // Get closest NEO object data
-            final String closestNEOData = manager.getClosestNeoObject();
+            final String closestNEOData = manager.getClosestNeoObject(args);
             LOGGER.info("Closest NEO object data :" + closestNEOData);
 
             // Get largest NEO Object data

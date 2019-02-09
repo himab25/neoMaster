@@ -1,6 +1,7 @@
 package com.neo.manager.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -76,14 +77,19 @@ public class NEODataObjectsManagerTest {
     @Test
     public void getClosestNEOObject_should_return_closest_NEO_data_as_string() throws Exception {
 
-        final URL url = new URL("https://api.nasa.gov/neo/rest/v1/neo/2001036?" + DETAIL_PARAM + APIKEY_PARAM);
+        final URL url =
+                new URL("https://api.nasa.gov/neo/rest/v1/feed?start_date=2019-02-10&end_date=2019-02-10?" + DETAIL_PARAM + APIKEY_PARAM);
         final String response =
-                "{\"id\":\"2001036\",\"neo_reference_id\":\"2001036\",\"name\":\"1036 Ganymed (A924 UB)\",\"name_limited\":\"Ganymed\",......}";
+                "{\"id\":\"3838137\",\"neo_reference_id\":\"3838137\",\"name\":\"(2019 CB2)\",\"designation\":\"2019 CB2\",......}";
+        final String[] args = {"2019-02-10" };
         // WHEN
+
         doReturn(response).when(cut).getResponseString(url);
+        doReturn(to).when(cut).retrieveNeoObjectsForInputDate(anyString(), anyString());
         doReturn(to).when(cut).retrieveNeoObjectsForToday();
         doReturn(to).when(cut).retrieveNeoObjectsForNextDate();
-        final String neoString = cut.getClosestNeoObject();
+
+        final String neoString = cut.getClosestNeoObject(args);
         assertEquals(to.toString(), neoString);
     }
 }

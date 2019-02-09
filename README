@@ -43,6 +43,7 @@ which returns the total NEO count.
 2. Largest NEO Object: To lookup the largest NEO from the feed,JPL Small-Body Database Search Engine has been used to query to look up the largest NEO's SPK-ID and then the lookup request is made 
 https://api.nasa.gov/neo/rest/v1/neo/2001036?detailed=true&api_key=developer_key
 
-3. Closest NEO Object : To determine closest NEO is date specific.First the data for today's feed is queried to find out the closest NEO depending on the property minimum_orbit_intersection. If there is no orbital_data for today's feed,
-the next day's feed response is queried,the url of which is obtained from the current feed
+3. Closest NEO Object : To determine closest NEO is date specific.THe user can input a date to get the closest NEO For that date. 
+If not by default the data for today's feed is queried to find out the closest NEO depending on the property minimum_orbit_intersection. 
+If there is no neo/orbital_data for today's feed,the next day's feed response is queried,the url of which is obtained from the current feed
 https://api.nasa.gov/neo/rest/v1/feed/today?detailed=true&api_key=developer_key
