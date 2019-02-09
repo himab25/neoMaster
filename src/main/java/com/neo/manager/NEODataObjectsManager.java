@@ -249,7 +249,7 @@ public class NEODataObjectsManager {
     /**
      * @param url
      */
-    private String getResponseString(final URL url) {
+    public String getResponseString(final URL url) {
         HttpURLConnection connection = null;
         final StringBuilder contents = new StringBuilder();
 
