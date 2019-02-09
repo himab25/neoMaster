@@ -1,7 +1,6 @@
-package com.neo.manager;
+package com.neo.manager.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -15,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.neo.manager.NEODataObjectsManager;
 import com.neo.to.DataNEOObjectsTO;
 
 /**
@@ -45,8 +45,8 @@ public class NEODataObjectsManagerTest {
         final String response = "";
         // WHEN
         doReturn(response).when(cut).getResponseString(url);
-        final Long count = cut.getTotalNEOObjectsCount();
-        assertTrue(count == 0l);
+        final String count = cut.getTotalNEOObjectsCount();
+        assertEquals(count, "0");
 
     }
 
@@ -57,8 +57,8 @@ public class NEODataObjectsManagerTest {
         final String response = "{\"near_earth_object_count\":20355}";
         // WHEN
         doReturn(response).when(cut).getResponseString(url);
-        final Long count = cut.getTotalNEOObjectsCount();
-        assertTrue(count == 20355);
+        final String count = cut.getTotalNEOObjectsCount();
+        assertEquals(count, "20355");
     }
 
     @Test

@@ -23,10 +23,10 @@ public class NEODataObjects {
     public static void main(final String[] args) {
 
         final NEODataObjectsManager manager = new NEODataObjectsManager();
-        final Long count = manager.getTotalNEOObjectsCount();
+        final String count = manager.getTotalNEOObjectsCount();
         LOGGER.info("Total number of NEO objects :" + count);
 
-        if (count != 0) {
+        if (!count.equalsIgnoreCase("0")) {
             // Get closest NEO object data
             final String closestNEOData = manager.getClosestNeoObject();
             LOGGER.info("Closest NEO object data :" + closestNEOData);

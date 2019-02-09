@@ -48,23 +48,29 @@ public class NEODataObjectsManager {
      * Retrieve the total count of NEO objects.
      */
     @SuppressWarnings("deprecation")
-    public Long getTotalNEOObjectsCount() {
+    public String getTotalNEOObjectsCount() {
         try {
             final URL url = new URL("https://api.nasa.gov/neo/rest/v1/stats?" + APIKEY_PARAM);
             final String response = getResponseString(url);
             if (StringUtils.isNotEmpty(response)) {
                 final JSONParser parser = new JSONParser();
-                final JSONObject json = (JSONObject) parser.parse(response);
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(response);
+                } catch (final ParseException e) {
+                    LOGGER.warning("Error parsing the json response,hence returning it as is as a String");
+                    return response;
+                }
                 for (final Map.Entry<String, Object> entry : json.entrySet()) {
                     if (entry.getKey().equals("near_earth_object_count")) {
-                        return Long.parseLong(entry.getValue().toString());
+                        return entry.getValue().toString();
                     }
                 }
             }
-        } catch (final Exception e) {
+        } catch (final MalformedURLException e) {
             LOGGER.severe(e.getMessage());
         }
-        return 0l;
+        return "0";
     }
 
     /**
