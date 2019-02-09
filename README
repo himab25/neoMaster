@@ -1,0 +1,48 @@
+This java application is built on jdk version 1.7 as mentioned in the pom.xml.
+
+Steps to build :
+
+Clone the git repository in any IDE (ex: eclipse)
+
+Convert it into a Maven project
+BUILD
+Define the maven repo path in your env and make sure the below  jars are present in that location :
+/{maven-repo-path}/org/projectlombok/lombok/1.16.4/lombok-1.16.4.jar
+/{maven-repo-path}/net/minidev/json-smart/1.3.1/json-smart-1.3.1.jar
+/{maven-repo-path}/org/codehaus/jackson/jackson-core-asl/1.9.2/jackson-core-asl-1.9.2.jar
+/{maven-repo-path}/org/codehaus/jackson/jackson-mapper-asl/1.9.2/jackson-mapper-asl-1.9.2.jar
+/{maven-repo-path}/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar
+/{maven-repo-path}/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar
+/{maven-repo-path}/org/mockito/mockito-all/1.10.19/mockito-all-1.10.19.jar
+
+Alternately,the project can be imported as a java project and the above mentioned jars can be added to the java build path
+I have provided the jars under the jars folder as well.Can be put in any desired location and build into the classpath.
+
+The application will then be compiled and build without errors.
+
+
+RUN
+The main java class containing the static main method is NEODataObjects.java
+We can simply run it as a java application and see the output in the IDE's console.
+
+
+JUNIT
+There is also a unit test file added-NEODataObjectsManagerTest.java
+Add the JUnit library jars to the build path. They are usually prvided as eclipse plugins
+Ex: /opt/dev/tools/eclipse/plugins/org.junit_4.11.0.v201303080030/junit.jar
+/opt/dev/tools/eclipse/plugins/org.junit_4.11.0.v201303080030/junit.jar
+Once added,Simply run NEODataObjectsManagerTest as a junit application.
+
+
+Application Logic:
+All the REST API calls made are from https://api.nasa.gov/api.html#neows-feed
+
+1. Total NEO count: The rest api call to determine the total NEO count is https://api.nasa.gov/neo/rest/v1/stats?api_key=developer_key
+which returns the total NEO count.
+
+2. Largest NEO Object: To lookup the largest NEO from the feed,JPL Small-Body Database Search Engine has been used to query to look up the largest NEO's SPK-ID and then the lookup request is made 
+https://api.nasa.gov/neo/rest/v1/neo/2001036?detailed=true&api_key=developer_key
+
+3. Closest NEO Object : To determine closest NEO is date specific.First the data for today's feed is queried to find out the closest NEO depending on the property minimum_orbit_intersection. If there is no orbital_data for today's feed,
+the next day's feed response is queried,the url of which is obtained from the current feed
+https://api.nasa.gov/neo/rest/v1/feed/today?detailed=true&api_key=developer_key
