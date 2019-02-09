@@ -32,7 +32,7 @@ public class NEODataObjects {
             LOGGER.info("Closest NEO object data :" + closestNEOData);
 
             // Get largest NEO Object data
-            final String largestNEOData = manager.getLargestNEOObject(args);
+            final String largestNEOData = manager.getLargestNEOObject();
             LOGGER.info("Largest NEO object data :" + largestNEOData);
 
         } else {

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.neo.manager;
 
 import java.io.BufferedReader;
@@ -10,10 +7,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -30,7 +23,6 @@ import org.codehaus.jackson.type.TypeReference;
 
 import com.neo.to.DataNEOObjectsTO;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -47,10 +39,6 @@ public class NEODataObjectsManager {
     // query params to use
     private static final String DETAIL_PARAM = "detailed=true";
     private static final String APIKEY_PARAM = "&api_key=B30cILrIL32Px5Thm38q3JXxecfQBXmkBq1F7NU4";
-
-    private static final String MILES = "miles";
-    private static final String MAX_DIAMETER = "estimated_diameter_max";
-    List<DataNEOObjectsTO> largestObjects = new ArrayList<>();
 
     String nextDateUrl = null;
     String defaultErrorMsg = "Date Format Exception - Expected format (yyyy-mm-dd) - The Feed date limit is only 7 Days";
@@ -147,13 +135,13 @@ public class NEODataObjectsManager {
                 for (final Map.Entry<String, Object> entry : json.entrySet()) {
 
                     if (entry.getKey().equals("near_earth_objects")) {
-                        return extractNEOData(entry, true);
+                        return extractNEOData(entry);
                     } else if (entry.getKey().equals("links")) {
                         extractNextUrl(entry);
                     }
                 }
             }
-        } catch (final Exception e) {
+        } catch (final ParseException e) {
             LOGGER.severe(e.getMessage());
         }
         return null;
@@ -186,24 +174,24 @@ public class NEODataObjectsManager {
      * @throws JsonMappingException
      */
     @SuppressWarnings("deprecation")
-    private DataNEOObjectsTO extractNEOData(final Map.Entry<String, Object> neos, final boolean forClosestObject) throws ParseException,
-            IOException {
-        final JSONParser parser = new JSONParser();
-        final JSONObject neoJson = (JSONObject) parser.parse(neos.getValue().toString());
-        if (!neoJson.isEmpty()) {
-            for (final Map.Entry<String, Object> dateEntry : neoJson.entrySet()) {
+    private DataNEOObjectsTO extractNEOData(final Map.Entry<String, Object> neos) {
+        try {
+            final JSONParser parser = new JSONParser();
+            final JSONObject neoJson = (JSONObject) parser.parse(neos.getValue().toString());
 
-                final JSONArray array = (JSONArray) parser.parse(dateEntry.getValue().toString());
-                final ObjectMapper mapper = new ObjectMapper();
+            if (!neoJson.isEmpty()) {
+                for (final Map.Entry<String, Object> dateEntry : neoJson.entrySet()) {
 
-                final List<DataNEOObjectsTO> responseTO = mapper.readValue(array.toString(), new TypeReference<List<DataNEOObjectsTO>>() {
-                });
-                if (forClosestObject) {
+                    final JSONArray array = (JSONArray) parser.parse(dateEntry.getValue().toString());
+                    final ObjectMapper mapper = new ObjectMapper();
+
+                    final List<DataNEOObjectsTO> responseTO = mapper.readValue(array.toString(), new TypeReference<List<DataNEOObjectsTO>>() {
+                    });
                     return getClosestNEOObjectData(responseTO);
-                } else {
-                    getLargestNEOObjectData(responseTO, false);
                 }
             }
+        } catch (final ParseException | IOException e) {
+            LOGGER.severe(e.getMessage());
         }
         return null;
     }
@@ -239,89 +227,23 @@ public class NEODataObjectsManager {
     }
 
     /**
-     * 
+     * Method to look up the largest NEO object data
      */
-    public String getLargestNEOObject(final String[] args) {
-        // Be default we get the largest NEO object based on today's feed
-        final Date today = new Date();
-        String startDate = getFormattedDate(today);
-        String endDate = startDate;
+    public String getLargestNEOObject() {
+        // Lookup a specific Asteroid based on its NASA JPL small body (SPK-ID) ID to determine the largest NEO
+        // SPK-ID of the largest NEO is determined using the JPL Small-Body Database Search Engine https://ssd.jpl.nasa.gov/sbdb_query.cgi
         try {
-            // If the user has input the date range from command line,we use them.
-            // Please note the date range limit is 7 days and format is yyyy-MM-dd.
-            // If only one date is input,we take it as start date and leave endDate as empty
-            if (args.length > 0) {
-                startDate = args[0];
-                if (args.length > 1) {
-                    endDate = args[1];
-                } else {
-                    endDate = "";
-                }
-            }
-            // Browse the NEO objects feed for the selected date range to determine the largest one
-            final String queryParams = "start_date=" + startDate + "&end_date=" + endDate + "&" + DETAIL_PARAM + APIKEY_PARAM;
-            final URL url = new URL("https://api.nasa.gov/neo/rest/v1/feed?" + queryParams);
+            final URL url = new URL("https://api.nasa.gov/neo/rest/v1/neo/2001036?" + DETAIL_PARAM + APIKEY_PARAM);
 
             final String response = getResponseString(url);
 
-            processNEOData(response);
-
-            if (CollectionUtils.isNotEmpty(largestObjects)) {
-                final DataNEOObjectsTO to = getLargestNEOObjectData(largestObjects, true);
-                if (to != null) {
-                    return to.toString();
-                }
+            if (StringUtils.isNotEmpty(response)) {
+                return response;
             }
         } catch (final MalformedURLException e) {
             LOGGER.severe(e.getMessage());
         }
         return "Cannot find largest NEO Object";
-    }
-
-    /**
-     * @param response
-     */
-    @SuppressWarnings("deprecation")
-    private DataNEOObjectsTO processNEOData(final String response) {
-        try {
-            if (StringUtils.isNotEmpty(response)) {
-                final JSONParser parser = new JSONParser();
-                final JSONObject json = (JSONObject) parser.parse(response);
-                for (final Map.Entry<String, Object> entry : json.entrySet()) {
-                    if (entry.getKey().equals("near_earth_objects")) {
-                        return extractNEOData(entry, false);
-                    }
-                }
-            }
-        } catch (final Exception e) {
-            LOGGER.severe(e.getMessage());
-        }
-        return null;
-    }
-
-    /**
-     * @param responseTO
-     * @param allPagesProcessed
-     */
-    private DataNEOObjectsTO getLargestNEOObjectData(final List<DataNEOObjectsTO> responseTO, final boolean allDatesProcessed) {
-        Double diameter = 0.0;
-        for (final DataNEOObjectsTO to : responseTO) {
-            final Map<String, Double> diameterList = to.getEstimatedDiameter().get(MILES);
-            if (diameterList.get(MAX_DIAMETER) > diameter) {
-                diameter = diameterList.get(MAX_DIAMETER);
-            }
-        }
-        for (final DataNEOObjectsTO to : responseTO) {
-            final Map<String, Double> diameterList = to.getEstimatedDiameter().get(MILES);
-            if (diameterList.get(MAX_DIAMETER) == diameter) {
-                if (allDatesProcessed) {
-                    return to;
-                } else {
-                    largestObjects.add(to);
-                }
-            }
-        }
-        return null;
     }
 
     /**
@@ -357,11 +279,4 @@ public class NEODataObjectsManager {
         }
         return contents.toString();
     }
-
-    public String getFormattedDate(final Date date) {
-        final String strDateFormat = "yyyy-MM-dd";
-        final DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
-        return dateFormat.format(date);
-    }
-
 }
